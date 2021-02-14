@@ -1,5 +1,5 @@
 ﻿Build1=Default,b4a.example
-File1=Layout.bal
+File1=main.bal
 FileGroup1=Default Group
 Group=Default Group
 Library1=core
@@ -38,7 +38,7 @@ Sub Globals
 End Sub
 
 Sub Activity_Create(FirstTime As Boolean)
-	Activity.LoadLayout("Layout")
+	Activity.LoadLayout("main")
 End Sub
 
 Sub Activity_Resume
@@ -49,7 +49,4 @@ Sub Activity_Pause (UserClosed As Boolean)
 
 End Sub
 
-Sub Button1_Click
-	xui.MsgboxAsync("Hello world!", "B4X")
-End Sub
 
