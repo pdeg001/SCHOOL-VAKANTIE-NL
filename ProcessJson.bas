@@ -10,88 +10,75 @@ Sub Class_Globals
 	Private jsonParser As JSONParser
 	Private Job As HttpJob
 	Private url As String
-	Private lstVakantie As List
+	Public lstVakantie As List
 End Sub
 
 Public Sub Initialize
 	
 End Sub
 
-Private Sub GetSchoolVakData (startYear As String, endYear As String)
+public Sub GetVacationData() As ResumableSub
 	Dim jsonData As String
 	lstVakantie.Initialize
 	
-	If ValidatePassed (startYear, endYear) = False Then
+	If ValidatePassed (Starter.urlCurrYear, Starter.urlNextYear) = False Then
 		'DO SOMETHING
 	End If
+
+	url = $"https://opendata.rijksoverheid.nl/v1/sources/rijksoverheid/infotypes/schoolholidays/schoolyear/${Starter.urlCurrYear}-${Starter.urlNextYear}?output=json"$
 	
-	url = $"https://opendata.rijksoverheid.nl/v1/sources/rijksoverheid/infotypes/schoolholidays/schoolyear/${startYear}-${endYear}?output=json"$
+	Job.Initialize("", Me)
 	Job.Download(url)
 	
-	Wait For (Job) Complete (result As Boolean)
+	Wait For (Job) jobDone(jobDone As HttpJob)
 	
-	If result Then
+	If jobDone.Success Then
 		jsonData = Job.GetString	
 	Else
-		'DO SOMTHING
+		'DO SOMETHING
 	End If
 	
 	Job.Release
 	
-	ParseSchoolVakData(jsonData)
+	If jsonData.IndexOf("<status-code>404") <> -1 Or jsonData = "" Then
+		Return False
+	End If
+	
+	Wait For (ParseSchoolVakData(jsonData)) Complete (result As Boolean)
+	
+	Return True
 	
 End Sub
 
-Private Sub ParseSchoolVakData(data As String)
+Private Sub ParseSchoolVakData(data As String) As ResumableSub
 	jsonParser.Initialize(data)
 	Dim root As Map = jsonParser.NextObject
-'	Dim license As String = root.Get("license")
-	Dim creators As List = root.Get("creators")
-	For Each colcreators As String In creators
-		
-	Next
+
 	Dim lastmodified As String = root.Get("lastmodified")
 	Starter.lastModified = lastmodified
-'	Dim language As String = root.Get("language")
-'	Dim location As String = root.Get("location")
-'	Dim id As String = root.Get("id")
-'	Dim canonical As String = root.Get("canonical")
-	Dim rightsholders As List = root.Get("rightsholders")
-	For Each colrightsholders As String In rightsholders
-	Next
-'	Dim Type As String = root.Get("type")
+
 	Dim content As List = root.Get("content")
 	For Each colcontent As Map In content
-'		Dim schoolyear As String = colcontent.Get("schoolyear")
 		Dim vacations As List = colcontent.Get("vacations")
 		For Each colvacations As Map In vacations
+			Dim compulsorydates As String = colvacations.Get("compulsorydates")
+			Dim vacation_type As String = colvacations.Get("type")
 			Dim regions As List = colvacations.Get("regions")
 			For Each colregions As Map In regions
 				Dim enddate As String = colregions.Get("enddate")
 				Dim region As String = colregions.Get("region")
 				Dim startdate As String = colregions.Get("startdate")
+				lstVakantie.Add(CreatevakantieMap(region.Trim, startdate, enddate, vacation_type.Trim, compulsorydates))
 			Next
-			Dim compulsorydates As String = colvacations.Get("compulsorydates")
-			Dim vacation_type As String = colvacations.Get("type")
 		Next
-'		Dim title As String = colcontent.Get("title")
-		'CREATE VACATION MAP
-		lstVakantie.Add(CreatevakantieMap(region, startdate, enddate, vacation_type, compulsorydates))
 	Next
-	Dim authorities As List = root.Get("authorities")
-	For Each colauthorities As String In authorities
-	Next
-	Dim notice As String = root.Get("notice")
 	
-	
+	Return True
 End Sub
 
 Private Sub ValidatePassed (startYear As Int, endYear As Int) As Boolean
-	If Not(startYear) Or Not(endYear) Then
-		Return False
-	End If
 	
-	If startYear < endYear Then
+	If startYear > endYear Then
 		Return False
 	End If
 	

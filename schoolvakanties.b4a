@@ -1,31 +1,42 @@
-﻿Build1=Default,b4a.example
-File1=main.bal
-FileGroup1=Default Group
+﻿Build1=Default,nl.pdeg.schoolvakanties_nederland
+File1=clvVacationMultiple.bal
+File2=clvVacationSingle.bal
+File3=main.bal
+File4=veramono.ttf
+File5=veramono-italic.ttf
+FileGroup1=Forms
+FileGroup2=Forms
+FileGroup3=Forms
+FileGroup4=font
+FileGroup5=font
 Group=Default Group
 Library1=core
 Library2=json
-Library3=xui
-Library4=okhttputils2
-ManifestCode='This code will be applied to the manifest file during compilation.~\n~'You do not need to modify it in most cases.~\n~'See this link for for more information: https://www.b4x.com/forum/showthread.php?p=78136~\n~AddManifestText(~\n~<uses-sdk android:minSdkVersion="14" android:targetSdkVersion="29"/>~\n~<supports-screens android:largeScreens="true" ~\n~    android:normalScreens="true" ~\n~    android:smallScreens="true" ~\n~    android:anyDensity="true"/>)~\n~SetApplicationAttribute(android:icon, "@drawable/icon")~\n~SetApplicationAttribute(android:label, "$LABEL$")~\n~CreateResourceFromFile(Macro, Themes.LightTheme)~\n~'End of default text.~\n~
-Module1=ProcessJson
-Module2=Starter
-NumberOfFiles=1
-NumberOfLibraries=4
-NumberOfModules=2
+Library3=okhttputils2
+Library4=xui
+Library5=xui views
+ManifestCode='This code will be applied to the manifest file during compilation.~\n~'You do not need to modify it in most cases.~\n~'See this link for for more information: https://www.b4x.com/forum/showthread.php?p=78136~\n~AddManifestText(~\n~<uses-sdk android:minSdkVersion="21" android:targetSdkVersion="29"/>~\n~<supports-screens android:largeScreens="true" ~\n~    android:normalScreens="true" ~\n~    android:smallScreens="true" ~\n~    android:anyDensity="true"/>)~\n~SetApplicationAttribute(android:icon, "@drawable/icon")~\n~SetApplicationAttribute(android:label, "$LABEL$")~\n~CreateResourceFromFile(Macro, Themes.DarkTheme)~\n~'End of default text.~\n~AddPermission(android.permission.INTERNET)~\n~SetApplicationAttribute(android:theme, "@style/LightTheme")~\n~CreateResource(values, colors.xml,~\n~<resources>~\n~    <color name="actionbar">#FF0000FF</color>~\n~   <color name="statusbar">#FF0000FF</color>~\n~   <color name="textColorPrimary">#FF0000FF</color>~\n~   <color name="navigationBar">#FF0000FF</color>~\n~</resources>~\n~)~\n~CreateResource(values-v20, theme.xml,~\n~<resources>~\n~    <style name="LightTheme" parent="@android:style/Theme.Material.Light">~\n~        <item name="android:colorPrimary">@color/actionbar</item>~\n~        <item name="android:colorPrimaryDark">@color/statusbar</item>~\n~        <item name="android:textColorPrimary">@color/textColorPrimary</item>~\n~        <item name="android:navigationBarColor">@color/navigationBar</item>~\n~    </style>~\n~</resources>~\n~)~\n~CreateResource(values-v14, theme.xml,~\n~<resources>~\n~    <style name="LightTheme" parent="@android:style/Theme.Holo.Light">~\n~       <item name="android:actionBarStyle">@style/CustomActionBarStyle</item>~\n~    </style>~\n~   <style name="CustomActionBarStyle" parent="@android:style/Widget.Holo.Light.ActionBar.Solid.Inverse">~\n~       <item name="android:background">@color/actionbar</item>~\n~   </style>~\n~</resources>~\n~)~\n~
+Module1=GenFunctions
+Module2=ProcessJson
+Module3=Starter
+NumberOfFiles=5
+NumberOfLibraries=5
+NumberOfModules=3
 Version=10.6
 @EndOfDesignText@
+#IgnoreWarnings: 16
 #Region  Project Attributes 
 	#ApplicationLabel: SchoolVakanties NL
 	#VersionCode: 1
-	#VersionName: 
+	#VersionName: v1.0
 	'SupportedOrientations possible values: unspecified, landscape or portrait.
 	#SupportedOrientations: portrait
 	#CanInstallToExternalStorage: False
 #End Region
 
 #Region  Activity Attributes 
-	#FullScreen: False
-	#IncludeTitle: True
+	#FullScreen: True
+	#IncludeTitle: False
 #End Region
 
 Sub Process_Globals
@@ -35,10 +46,39 @@ End Sub
 Sub Globals
 	Type vakantieMap(region As String, startDate As String, EndDate As String, vacation_type As String, _
 					compulsorydates As String)
+
+	Private mHerfst, mKerst, mVoorjaar, mMei, mZomer As List
+
+	Private clsGetVacation As ProcessJson	
+	Private currHeaderLabel As String	
+	
+	Private lblHeaderYear As Label
+	Private lblHeaderNextYear As Label
+	Private lblHeaderPrevYear As Label
+	Private lblDate As Label
+	Private lblRegion As Label
+	Private lblVacationType As Label
+	Private pnlSingle As Panel
+	Private lblDate1 As Label
+	Private lblDate2 As Label
+	Private lblDate3 As Label
+	Private lblRegion1 As Label
+	Private lblRegion2 As Label
+	Private lblRegion3 As Label
+	Private pnlMulti As Panel
+	Private CvVacation As CustomListView
 End Sub
 
 Sub Activity_Create(FirstTime As Boolean)
+	clsGetVacation.Initialize
 	Activity.LoadLayout("main")
+	
+	InitMaps
+	GenFunctions.SetYearStart
+	
+	clsGetVacation.GetVacationData
+	
+	ParseVacationData
 End Sub
 
 Sub Activity_Resume
@@ -49,4 +89,144 @@ Sub Activity_Pause (UserClosed As Boolean)
 
 End Sub
 
+Private Sub ParseVacationData
+	Dim mVacation As vakantieMap
+	
+	Wait For (clsGetVacation.GetVacationData) Complete (done As Boolean)
+	
+	If done = False Then
+		lblHeaderYear.Text = currHeaderLabel
+		Msgbox2Async($"Geen vakantie gegevens bekend voor de periode ${Starter.urlCurrYear} - ${Starter.urlNextYear}"$, Application.LabelName, "OKE", "", "", Application.Icon, False)
+		Wait For Msgbox_Result (Result As Int)
+		If Result = DialogResponse.POSITIVE Then
+			Return
+		End If
+	End If
 
+	InitMaps
+	CvVacation.Clear
+	
+	For i = 0 To clsGetVacation.lstVakantie.Size -1
+		mVacation = clsGetVacation.lstVakantie.Get(i)
+		mVacation.startDate = (GenFunctions.ParseVacationDate( mVacation.startDate))
+		mVacation.endDate = (GenFunctions.ParseVacationDate( mVacation.endDate))
+		
+		If mVacation.vacation_type.ToLowerCase = "herfstvakantie" Then
+			SetHerfstMap(mVacation)
+		End If
+		If mVacation.vacation_type.ToLowerCase = "kerstvakantie" Then
+			SetKerstMap(mVacation)
+		End If
+		If mVacation.vacation_type.ToLowerCase = "voorjaarsvakantie" Then
+			SetVoorjaarMap(mVacation)
+		End If
+		If mVacation.vacation_type.ToLowerCase = "meivakantie" Then
+			SetmeiMap(mVacation)
+		End If
+		If mVacation.vacation_type.ToLowerCase = "zomervakantie" Then
+			SetZomerMap(mVacation)
+		End If
+	Next
+
+	GenVacationList
+	
+End Sub
+
+
+
+Private Sub lblHeaderPrevYear_Click
+	currHeaderLabel = lblHeaderYear.Text
+	lblHeaderYear.Text = GenFunctions.SetSelectedYear(lblHeaderYear.Text, 0)
+	ParseVacationData
+End Sub
+
+Private Sub lblHeaderNextYear_Click
+	currHeaderLabel = lblHeaderYear.Text
+	lblHeaderYear.Text = GenFunctions.SetSelectedYear(lblHeaderYear.Text, 1)
+	ParseVacationData
+End Sub
+
+Private Sub InitMaps
+	mHerfst.Initialize
+	mKerst.Initialize
+	mVoorjaar.Initialize
+	mMei.Initialize
+	mZomer.Initialize
+End Sub
+
+Private Sub SetHerfstMap(m As vakantieMap)
+	mHerfst.Add(m)
+End Sub
+
+Private Sub SetKerstMap(m As vakantieMap)
+	mKerst.Add(m)
+End Sub
+
+Private Sub SetVoorjaarMap(m As vakantieMap)
+	mVoorjaar.Add(m)
+End Sub
+
+Private Sub SetmeiMap(m As vakantieMap)
+	mMei.Add(m)
+End Sub
+
+Private Sub SetZomerMap(m As vakantieMap)
+	mZomer.Add(m)
+End Sub
+
+Private Sub GenVacationList
+	CvVacation.Add(SetVacationPanel(mHerfst), "")
+	CvVacation.Add(SetVacationPanel(mKerst), "")
+	CvVacation.Add(SetVacationPanel(mVoorjaar), "")
+	CvVacation.Add(SetVacationPanel(mMei), "")
+	CvVacation.Add(SetVacationPanel(mZomer), "")
+End Sub
+
+Private Sub SetVacationPanel(vList As List) As Panel
+	Dim pnl As Panel
+	Dim vMap As vakantieMap
+	Dim width As Int = CvVacation.AsView.Width
+
+	pnl.Initialize(Me)
+
+	
+	If vList.Size = 1 Then
+		vMap = vList.Get(0)
+		pnl.SetLayout(0dip, 0dip, width, 140dip)
+		pnl.LoadLayout("clvVacationSingle")
+		
+		lblVacationType.Text = vMap.vacation_type.ToUpperCase
+		If vMap.compulsorydates = False Then
+			lblVacationType.Text = $"${lblVacationType.Text}  *"$
+		End If
+		lblRegion.Text = vMap.region.ToUpperCase
+		lblDate.Text = $"${vMap.startDate} - ${vMap.EndDate}"$
+		
+	Else
+		pnl.SetLayout(0dip, 0dip, width, 170dip)
+		pnl.LoadLayout("clvVacationMultiple")
+		
+		For i = 0 To vList.Size - 1
+			vMap = vList.Get(i)
+			If i = 0 Then
+				lblVacationType.Text = vMap.vacation_type.ToUpperCase
+				If vMap.compulsorydates = False Then
+					lblVacationType.Text = $"${lblVacationType.Text}  *"$
+				End If
+				lblRegion1.Text = vMap.region.ToUpperCase
+				lblDate1.Text = $"${vMap.startDate} - ${vMap.EndDate}"$
+			End If
+			If i = 1 Then
+				lblRegion2.Text = vMap.region.ToUpperCase
+				lblDate2.Text = $"${vMap.startDate} - ${vMap.EndDate}"$
+			End If
+			If i = 2 Then
+				lblRegion3.Text = vMap.region.ToUpperCase
+				lblDate3.Text = $"${vMap.startDate} - ${vMap.EndDate}"$
+			End If
+		Next
+	End If
+	
+	Return pnl
+	
+End Sub
