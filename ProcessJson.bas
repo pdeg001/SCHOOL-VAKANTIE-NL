@@ -10,21 +10,21 @@ Sub Class_Globals
 	Private jsonParser As JSONParser
 	Private Job As HttpJob
 	Private url As String
-	Private lstVakantie As List
+	Public lstVakantie As List
 End Sub
 
 Public Sub Initialize
 	
 End Sub
 
-public Sub GetVacationData()
+public Sub GetVacationData() As ResumableSub
 	Dim jsonData As String
 	lstVakantie.Initialize
 	
 	If ValidatePassed (Starter.urlCurrYear, Starter.urlNextYear) = False Then
 		'DO SOMETHING
 	End If
-	
+
 	url = $"https://opendata.rijksoverheid.nl/v1/sources/rijksoverheid/infotypes/schoolholidays/schoolyear/${Starter.urlCurrYear}-${Starter.urlNextYear}?output=json"$
 	
 	Job.Initialize("", Me)
@@ -35,13 +35,18 @@ public Sub GetVacationData()
 	If jobDone.Success Then
 		jsonData = Job.GetString	
 	Else
-		'DO SOMTHING
+		'DO SOMETHING
 	End If
 	
 	Job.Release
 	
+	If jsonData.IndexOf("<status-code>404") <> -1 Or jsonData = "" Then
+		Return False
+	End If
+	
 	Wait For (ParseSchoolVakData(jsonData)) Complete (result As Boolean)
-	Log(lstVakantie)
+	
+	Return True
 	
 End Sub
 
@@ -63,7 +68,7 @@ Private Sub ParseSchoolVakData(data As String) As ResumableSub
 				Dim enddate As String = colregions.Get("enddate")
 				Dim region As String = colregions.Get("region")
 				Dim startdate As String = colregions.Get("startdate")
-				lstVakantie.Add(CreatevakantieMap(region, startdate, enddate, vacation_type, compulsorydates))
+				lstVakantie.Add(CreatevakantieMap(region.Trim, startdate, enddate, vacation_type.Trim, compulsorydates))
 			Next
 		Next
 	Next

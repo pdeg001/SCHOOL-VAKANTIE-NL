@@ -40,5 +40,14 @@ Sub SetYearStart As String
 	Starter.urlCurrYear = currYear
 	Starter.urlNextYear = currYear + 1
 	
-	return $"${Starter.urlCurrYear} - ${Starter.urlNextYear}"$
+	Return $"${Starter.urlCurrYear} - ${Starter.urlNextYear}"$
+End Sub
+
+Sub ParseVacationDate(vDate As String) As String
+	Dim dDate As Long
+	vDate = vDate.Replace(".000Z", "")
+	DateTime.DateFormat = "yyyy-MM-dd"
+	dDate = DateTime.DateParse(vDate)
+	DateTime.DateFormat= "dd-MM-yyyy"
+	Return DateTime.Date(dDate)
 End Sub
