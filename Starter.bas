@@ -11,7 +11,7 @@ Version=9.9
 
 Sub Process_Globals
 	Dim lastModified As String
-	dim urlCurrYear, urlNextYear as String
+	Dim urlCurrYear, urlNextYear As String
 
 End Sub
 

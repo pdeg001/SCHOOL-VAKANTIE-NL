@@ -24,6 +24,7 @@ NumberOfLibraries=5
 NumberOfModules=3
 Version=10.6
 @EndOfDesignText@
+#IgnoreWarnings: 16
 #Region  Project Attributes 
 	#ApplicationLabel: SchoolVakanties NL
 	#VersionCode: 1
@@ -45,13 +46,19 @@ End Sub
 Sub Globals
 	Type vakantieMap(region As String, startDate As String, EndDate As String, vacation_type As String, _
 					compulsorydates As String)
+
+	Private clsGetVacation As ProcessJson	
 	Private lblHeaderYear As Label
 	Private lblHeaderNextYear As Label
 	Private lblHeaderPrevYear As Label
 End Sub
 
 Sub Activity_Create(FirstTime As Boolean)
+	clsGetVacation.Initialize
 	Activity.LoadLayout("main")
+	GenFunctions.SetYearStart
+	
+	clsGetVacation.GetVacationData
 End Sub
 
 Sub Activity_Resume
@@ -62,11 +69,16 @@ Sub Activity_Pause (UserClosed As Boolean)
 
 End Sub
 
+Private Sub GetVacation
+	
+End Sub
+
 Private Sub lblHeaderPrevYear_Click
 	lblHeaderYear.Text = GenFunctions.SetSelectedYear(lblHeaderYear.Text, 0)
-	
+	clsGetVacation.GetVacationData
 End Sub
 
 Private Sub lblHeaderNextYear_Click
 	lblHeaderYear.Text = GenFunctions.SetSelectedYear(lblHeaderYear.Text, 1)
+	clsGetVacation.GetVacationData
 End Sub
