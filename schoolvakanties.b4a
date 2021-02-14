@@ -1,17 +1,27 @@
 ﻿Build1=Default,b4a.example
-File1=main.bal
-FileGroup1=Default Group
+File1=clvVacationMultiple.bal
+File2=clvVacationSingle.bal
+File3=main.bal
+File4=veramono.ttf
+File5=veramono-italic.ttf
+FileGroup1=Forms
+FileGroup2=Forms
+FileGroup3=Forms
+FileGroup4=font
+FileGroup5=font
 Group=Default Group
 Library1=core
 Library2=json
-Library3=xui
-Library4=okhttputils2
+Library3=okhttputils2
+Library4=xui
+Library5=xui views
 ManifestCode='This code will be applied to the manifest file during compilation.~\n~'You do not need to modify it in most cases.~\n~'See this link for for more information: https://www.b4x.com/forum/showthread.php?p=78136~\n~AddManifestText(~\n~<uses-sdk android:minSdkVersion="14" android:targetSdkVersion="29"/>~\n~<supports-screens android:largeScreens="true" ~\n~    android:normalScreens="true" ~\n~    android:smallScreens="true" ~\n~    android:anyDensity="true"/>)~\n~SetApplicationAttribute(android:icon, "@drawable/icon")~\n~SetApplicationAttribute(android:label, "$LABEL$")~\n~CreateResourceFromFile(Macro, Themes.LightTheme)~\n~'End of default text.~\n~
-Module1=ProcessJson
-Module2=Starter
-NumberOfFiles=1
-NumberOfLibraries=4
-NumberOfModules=2
+Module1=GenFunctions
+Module2=ProcessJson
+Module3=Starter
+NumberOfFiles=5
+NumberOfLibraries=5
+NumberOfModules=3
 Version=10.6
 @EndOfDesignText@
 #Region  Project Attributes 
@@ -24,8 +34,8 @@ Version=10.6
 #End Region
 
 #Region  Activity Attributes 
-	#FullScreen: False
-	#IncludeTitle: True
+	#FullScreen: True
+	#IncludeTitle: False
 #End Region
 
 Sub Process_Globals
@@ -35,6 +45,9 @@ End Sub
 Sub Globals
 	Type vakantieMap(region As String, startDate As String, EndDate As String, vacation_type As String, _
 					compulsorydates As String)
+	Private lblHeaderYear As Label
+	Private lblHeaderNextYear As Label
+	Private lblHeaderPrevYear As Label
 End Sub
 
 Sub Activity_Create(FirstTime As Boolean)
@@ -49,4 +62,11 @@ Sub Activity_Pause (UserClosed As Boolean)
 
 End Sub
 
+Private Sub lblHeaderPrevYear_Click
+	lblHeaderYear.Text = GenFunctions.SetSelectedYear(lblHeaderYear.Text, 0)
+	
+End Sub
 
+Private Sub lblHeaderNextYear_Click
+	lblHeaderYear.Text = GenFunctions.SetSelectedYear(lblHeaderYear.Text, 1)
+End Sub
