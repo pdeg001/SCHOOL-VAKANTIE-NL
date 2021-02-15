@@ -41,6 +41,9 @@ Version=10.6
 
 Sub Process_Globals
 	Private xui As XUI
+	
+	Dim MOVEMENT_THRESHOLD As Int
+	MOVEMENT_THRESHOLD = 100dip
 End Sub
 
 Sub Globals
@@ -67,12 +70,16 @@ Sub Globals
 	Private lblRegion3 As Label
 	Private pnlMulti As Panel
 	Private CvVacation As CustomListView
+	Dim Panel1 As Panel
 End Sub
 
 Sub Activity_Create(FirstTime As Boolean)
 	clsGetVacation.Initialize
+'	Panel1.Initialize("Panel1")
 	Activity.LoadLayout("main")
-	
+'	Activity.AddView(Panel1, 0, 0, 100%x, 100%y)
+'	Panel1.BringToFront
+'	Panel1.Elevation = 0
 	InitMaps
 	GenFunctions.SetYearStart
 	
@@ -131,8 +138,6 @@ Private Sub ParseVacationData
 	GenVacationList
 	
 End Sub
-
-
 
 Private Sub lblHeaderPrevYear_Click
 	currHeaderLabel = lblHeaderYear.Text
@@ -228,5 +233,29 @@ Private Sub SetVacationPanel(vList As List) As Panel
 	End If
 	
 	Return pnl
+	
+End Sub
+
+Sub Panel1_Touch (Action As Int, X As Float, Y As Float) As Boolean 'Return True to consume the event
+	Dim StartX As Float
+	Select Action
+		Case Activity.ACTION_DOWN
+			StartX = X
+			
+		Case Activity.ACTION_UP
+			If Abs(X - StartX) > MOVEMENT_THRESHOLD Then
+				Swipe(X < StartX)
+			End If
+	End Select
+	Return True
+End Sub
+
+Sub Swipe(Left As Boolean)
+Log(Left)
+	If Left Then
+		Log("Left")
+	Else
+		Log("Right")
+	End If
 	
 End Sub
