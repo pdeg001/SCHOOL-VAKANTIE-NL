@@ -9,7 +9,7 @@ Sub Process_Globals
 
 End Sub
 
-Sub SetSelectedYear(currSelection As String, changeYear As Int) As String
+Sub SetSelectedYear(currSelection As String, changeYear As Int)
 	Dim passedSelection() As String
 	
 	passedSelection = Regex.Split("-", currSelection)
@@ -25,8 +25,6 @@ Sub SetSelectedYear(currSelection As String, changeYear As Int) As String
 	
 	Starter.urlCurrYear = yearLeft
 	Starter.urlNextYear = yearRight
-	Return ($"${yearLeft} - ${yearRight}"$)
-	
 End Sub
 
 Private Sub SetYear(year As Int)

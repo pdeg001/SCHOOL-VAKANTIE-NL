@@ -10,9 +10,7 @@ Version=9.9
 #End Region
 
 Sub Process_Globals
-	Dim lastModified As String
 	Dim urlCurrYear, urlNextYear As String
-
 End Sub
 
 Sub Service_Create
