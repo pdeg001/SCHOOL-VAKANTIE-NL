@@ -55,7 +55,7 @@ Private Sub ParseSchoolVakData(data As String) As ResumableSub
 	Dim root As Map = jsonParser.NextObject
 
 	Dim lastmodified As String = root.Get("lastmodified")
-	Starter.lastModified = lastmodified
+	'Starter.lastModified = lastmodified
 
 	Dim content As List = root.Get("content")
 	For Each colcontent As Map In content
