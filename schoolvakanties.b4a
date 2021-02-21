@@ -28,7 +28,7 @@ Version=10.6
 #Region  Project Attributes 
 	#ApplicationLabel: SchoolVakanties NL
 	#VersionCode: 1
-	#VersionName: v1.0
+	#VersionName: v1.1
 	'SupportedOrientations possible values: unspecified, landscape or portrait.
 	#SupportedOrientations: portrait
 	#CanInstallToExternalStorage: False
@@ -132,8 +132,6 @@ Private Sub ParseVacationData
 	GenVacationList
 	
 End Sub
-
-
 
 Private Sub lblHeaderPrevYear_Click
 	currHeaderLabel = lblHeaderYear.Text

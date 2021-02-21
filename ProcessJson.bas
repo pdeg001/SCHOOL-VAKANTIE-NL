@@ -21,21 +21,18 @@ public Sub GetVacationData() As ResumableSub
 	Dim jsonData As String
 	lstVakantie.Initialize
 	
-	If ValidatePassed (Starter.urlCurrYear, Starter.urlNextYear) = False Then
-		'DO SOMETHING
-	End If
-
 	url = $"https://opendata.rijksoverheid.nl/v1/sources/rijksoverheid/infotypes/schoolholidays/schoolyear/${Starter.urlCurrYear}-${Starter.urlNextYear}?output=json"$
 	
 	Job.Initialize("", Me)
 	Job.Download(url)
-	
+		
 	Wait For (Job) jobDone(jobDone As HttpJob)
 	
 	If jobDone.Success Then
 		jsonData = Job.GetString	
 	Else
-		'DO SOMETHING
+		Job.Release
+		Return False
 	End If
 	
 	Job.Release
@@ -54,9 +51,6 @@ Private Sub ParseSchoolVakData(data As String) As ResumableSub
 	jsonParser.Initialize(data)
 	Dim root As Map = jsonParser.NextObject
 
-	Dim lastmodified As String = root.Get("lastmodified")
-	'Starter.lastModified = lastmodified
-
 	Dim content As List = root.Get("content")
 	For Each colcontent As Map In content
 		Dim vacations As List = colcontent.Get("vacations")
@@ -72,19 +66,6 @@ Private Sub ParseSchoolVakData(data As String) As ResumableSub
 			Next
 		Next
 	Next
-	
-	Return True
-End Sub
-
-Private Sub ValidatePassed (startYear As Int, endYear As Int) As Boolean
-	
-	If startYear > endYear Then
-		Return False
-	End If
-	
-	If startYear = endYear Then
-		Return False
-	End If
 	
 	Return True
 End Sub
