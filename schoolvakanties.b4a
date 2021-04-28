@@ -22,7 +22,7 @@ Module3=Starter
 NumberOfFiles=5
 NumberOfLibraries=5
 NumberOfModules=3
-Version=10.6
+Version=10.7
 @EndOfDesignText@
 #IgnoreWarnings: 16
 #Region  Project Attributes 

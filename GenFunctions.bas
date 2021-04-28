@@ -35,8 +35,8 @@ End Sub
 Sub SetYearStart As String
 	Dim currYear As Int = DateTime.GetYear(DateTime.Now)
 	
-	Starter.urlCurrYear = currYear
-	Starter.urlNextYear = currYear + 1
+	Starter.urlCurrYear = currYear - 1
+	Starter.urlNextYear = currYear
 	
 	Return $"${Starter.urlCurrYear} - ${Starter.urlNextYear}"$
 End Sub
